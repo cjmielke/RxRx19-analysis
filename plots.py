@@ -19,6 +19,10 @@ def scatter(df, colname, title=None):
 
     title = title or colname
 
+    numPoints = len(df)
+    if numPoints>100000: pointSize = 0.005
+    else: pointSize = 0.1
+
     uniq = sorted(list(set(df[colname].dropna())))
 
     if len(uniq) > 50:
@@ -36,7 +40,7 @@ def scatter(df, colname, title=None):
 
     for i, colVal in enumerate(uniq):
         sdf = df[df[colname]==colVal]
-        plt.scatter(sdf.x, sdf.y, s=0.005, color=scalarMap.to_rgba(i), label=colVal)
+        plt.scatter(sdf.x, sdf.y, s=pointSize, color=scalarMap.to_rgba(i), label=colVal)
 
     plt.title(title)
     if len(uniq) < 50:

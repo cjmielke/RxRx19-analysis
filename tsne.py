@@ -1,4 +1,10 @@
+import argparse
+
 import pandas
+
+parser = argparse.ArgumentParser(description='compute tSNE embeddings')
+parser.add_argument('-cuda', action='store_true', help='Use CUDA accelerated tSNE')
+args = parser.parse_args()
 
 
 metadata = '../data/RxRx19/RxRx19a/metadata-big.csv'
@@ -11,22 +17,58 @@ print('Loaded')
 
 print(embeddings)
 
+
+# Try normalizing the embeddings data between experiments
+
+normalize = ['experiment', 'site', 'plate', 'disease_condition']
+normalize = False
+
+if normalize:
+
+	for colName in normalize:
+
+		print('Normalizing by ', colName)
+
+		parts = []
+		for colVal in set(metadata[colName]):
+			partition = metadata[metadata[colName]==colVal]
+			embeddingsPartition = embeddings[ embeddings.index.isin(set(partition.index)) ]
+
+			# compute centroid of embeddings vectors, and then subtract each
+			centroid = embeddingsPartition.mean(axis=0)
+			embeddingsPartition -= centroid
+			parts.append(embeddingsPartition)
+
+		embeddings = pandas.concat(parts)
+		# now the embeddings dataframe should be normalized to each experiment
+
+
+
+# Todo - turn this routine into a function that can be applied to any column
+
+
 # try focusing just on experiment 1, effectively cutting the experiment in half
-exp1 = metadata[metadata.experiment=='HRCE-1']
-embeddings = embeddings[embeddings.index.isin(set(exp1.index))]
+#exp1 = metadata[metadata.experiment=='HRCE-1']
+#embeddings = embeddings[embeddings.index.isin(set(exp1.index))]
 
 
-from sklearn.manifold import TSNE
 
 # process a small fraction ...
-#embeddings = embeddings.sample(frac=0.1)
+embeddings = embeddings.sample(frac=0.05)
 
 
 X = embeddings.values
 index = embeddings.index
 
 print('Fitting and transforming tSNE')
-tSNE = TSNE(n_components=2, verbose=1, n_jobs=-1, perplexity=40)
+
+if args.cuda:
+	from tsnecuda import TSNE  # FASTER!!!
+	tSNE = TSNE(n_components=2, verbose=1, perplexity=50)
+else:
+	from sklearn.manifold import TSNE
+	tSNE = TSNE(n_components=2, verbose=1, n_jobs=-1, perplexity=5)
+
 X_embedded = tSNE.fit_transform(X)
 #tSNE.fit_transform()
 
