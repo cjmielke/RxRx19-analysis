@@ -21,9 +21,9 @@ def scatter(df, colname, title=None):
 
     uniq = sorted(list(set(df[colname].dropna())))
 
-    #if len(uniq) > 50:
-    #    print('skipping ', colname)
-    #    return
+    if len(uniq) > 50:
+        print('skipping ', colname)
+        return
 
     print('\n\n')
     print(df[colname].value_counts())
@@ -36,7 +36,7 @@ def scatter(df, colname, title=None):
 
     for i, colVal in enumerate(uniq):
         sdf = df[df[colname]==colVal]
-        plt.scatter(sdf.x, sdf.y, s=0.01, color=scalarMap.to_rgba(i), label=colVal)
+        plt.scatter(sdf.x, sdf.y, s=0.005, color=scalarMap.to_rgba(i), label=colVal)
 
     plt.title(title)
     if len(uniq) < 50:
