@@ -14,3 +14,31 @@ For drug repurposing, it is useful to consider the idea that the underlying cell
 
 ## Preliminary exploration
 
+First, a breakdown of the condition of each well shows a justifiably unbalanced dataset. Still, quite a lot of controls!
+
+	Active SARS-CoV-2            280376
+	Mock                           9120
+	UV Inactivated SARS-CoV-2      9120
+
+
+There are two cell types, split into 4 distinct experiments
+
+	========== cell_type === unique values :  2
+	HRCE    284080
+	VERO     21440
+	========== experiment === unique values :  4
+	HRCE-2    144720
+	HRCE-1    139360
+	VERO-1     10720
+	VERO-2     10720
+
+
+## Visualization
+
+Ive been looking for an excuse to play with tSNE embedding! For this dataset, it seems to have worked wonders! I start with plots on 10% of the full shuffled dataset.
+
+![](results/first-10percent/tsne-disease_condition.png)
+|              |   |
+:-------------------------:|:-------------------------:
+![](results/first-10percent/tsne-experiment.png)  |  ![](results/first-10percent/tsne-cell_type.png)
+![](results/first-10percent/)  |  ![](results/first-10percent/)
