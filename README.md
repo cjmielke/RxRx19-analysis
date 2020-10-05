@@ -35,10 +35,25 @@ There are two cell types, split into 4 distinct experiments
 
 ## Visualization
 
-Ive been looking for an excuse to play with tSNE embedding! For this dataset, it seems to have worked wonders! I start with plots on 10% of the full shuffled dataset.
+Ive been looking for an excuse to play with tSNE embedding! For this dataset, it seems to have worked wonders! I start with plots on 10% of the full shuffled dataset. The most important, and enthusiastic finding, is that the embedding vectors for the Mock and UV-inactivated cells tend to form significant clusters, suggesting that this homeostasis appears to be relatively stable from the perspective of the microscopy images.
+
 
 ![](results/first-10percent/tsne-disease_condition.png)
+Despite this, the embedding vectors form distinct clusters that correspond to both cell-type, and the experiment performed. By far most of the data are from the two HRCE experiments, each of which has its own associated cluster. Within each of these experiments is a local cluster of cells in homeostasis. This is important, because the tSNE embedding has revealed that there is a systematic bias in those image datasets that propagated through the nearal network and created a euclidean separation of the corresponding embedding vectors. This isn't really a problem though! We can instead focus on single experiments for downstream analysis.
+
+![](results/first-10percent/tsne-experiment.png)
+
+Although there is significant bias between the 4 different experiments, the other categorical variables within the dataset are less concerning. The plate number shows some local clumping of data, as does the site imaged within each well. I'll need to look at the images later to find systematic reasons that these images are "distinguishable". 
+
 |              |   |
 :-------------------------:|:-------------------------:
-![](results/first-10percent/tsne-experiment.png)  |  ![](results/first-10percent/tsne-cell_type.png)
+![](results/first-10percent/tsne-site.png)  |  ![](results/first-10percent/tsne-plate.png)
 ![](results/first-10percent/)  |  ![](results/first-10percent/)
+
+
+### Focusing on one experiment
+
+Most relevantly, the fact that diseased vs non-diseased cells are so easily seperable by the embedding vectors is quite useful! Narrowing down to a single experiments datapoints is a next logical step. The following tSNE embeddings are computed (overnight) on ALL vectors from HRCE-1.
+
+![](results/exp1-big/tsne-disease_condition.png)
+
