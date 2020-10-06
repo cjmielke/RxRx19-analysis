@@ -3,6 +3,8 @@ import pandas
 from matplotlib import colors
 import matplotlib.cm as cmx
 
+import tables
+
 df = pandas.read_hdf('DF.hdf','df')
 
 print(df.columns)
@@ -54,11 +56,70 @@ def scatter(df, colname, title=None):
 
 
 
-scatter(df, 'treatment_conc')
+#scatter(df, 'treatment_conc')
 #scatter(df, 'cell_type')
 #scatter(df, 'experiment')
 
 plotcols = [c for c in df.columns if c not in ['x', 'y', 'SMILES']]
 print(plotcols)
 
-for col in plotcols: scatter(df, col)
+#for col in plotcols: scatter(df, col)
+
+
+
+
+# crazy idea! Now that I have these embeddings, can we find neighboring points of the healthy cells?
+
+from scipy import spatial
+
+# construct a KD tree on all of the points corresponding to drugs
+drugs = df[df.disease_condition=='Active SARS-CoV-2']
+drugPoints = zip(drugs.x.values, drugs.y.values)
+
+drugPoints = drugs[['x','y']].values
+
+print(drugPoints.shape)
+
+tree = spatial.KDTree(drugPoints)
+
+normalCells = df[df.disease_condition != 'Active SARS-CoV-2']
+normalPoints = normalCells[['x','y']].values
+
+hits = tree.query_ball_point(normalPoints, 0.1)
+
+print(hits)
+
+allHits = set()
+for row in hits:
+    for index in row: allHits.add(index)
+
+
+print('----------hits------------')
+print(len(allHits))
+print('----------hits------------')
+
+hits = df.iloc[sorted(list(allHits))]
+
+print(hits)
+
+#df['hit'] = df[df.iloc.isin(allHits)]
+
+df['hit']=0
+df.loc[df.index.isin(hits.index), 'hit']=1
+df.loc[df.index.isin(hits.index), 'disease_condition']='ZHit'
+
+
+scatter(df, 'hit')
+scatter(df, 'disease_condition', 'drughit')
+
+
+hits.to_csv('hits.tsv', sep='\t')
+
+
+#[4, 8, 9, 12]
+
+
+
+
+
+

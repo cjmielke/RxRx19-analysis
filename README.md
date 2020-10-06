@@ -94,6 +94,51 @@ Centering the embedding vectors results in multiple homeostatic clusters feature
 ![](results/normalization-overnight/tsne-disease_condition.png)  |  ![](results/normalization-overnight/tsne-experiment.png)
 ![](results/normalization-overnight/tsne-treatment_conc.png)  |  ![](results/normalization-overnight/tsne-plate.png)
 
+### Finding potential drug hits
+
+TSNE is a clever manifold embedding approach, but we must remember that only local distances are preserved. Exploiting this property however, we can find points in these plots that neighbor the clusters of homeostatic cells. I implemented this search with a KDTree to find all points within a 0.1 radius within this manifold.
+
+The result finds drugs clustered around the core, in orange.
+
+![](results/drughits.png)
+
+To rapidly summarize the top drugs, I merely counted the occurance of each by name. This will float the replicates to the top, as well as prioritize drugs that work at multiple concentrations. Excitingly, many of these drugs end in "vir"
+
+     57 Migalastat
+     54 solithromycin
+     51 Polydatin
+     50 Tenofovir Disoproxil Fumarate
+     49 Ribavirin
+     49 Aloxistatin
+     48 Camostat
+     47 Oseltamivir carboxylate
+     46 Penciclovir
+     46 Indinavir
+     45 GS-441524
+     44 Ritonavir
+     43 Haloperidol
+     43 Dimethyl fumarate
+     42 Cobicistat
+     42 Arbidol
+     40 Thymoquinone
+     40 quinine-ethyl-carbonate
+     39 Darunavir
+     37 Idelalisib
+     36 ML-9
+     35 Quinine
+     35 Indomethacin
+     34 Efonidipine
+     33 Lafutidine
+     33 Imiquimod
+     33 Favipiravir
+     32 Quercetin
+     31 Remdesivir (GS-5734)
+     31 Forodesine
+     30 Triclocarban
+     30 phenylpiracetam
+
+
+
 
 ### Better approaches
 
