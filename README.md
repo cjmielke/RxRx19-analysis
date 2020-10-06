@@ -66,11 +66,19 @@ Importantly, these other confounds are just as easily normalized as the experime
 ![](results/first-10percent/)  |  ![](results/first-10percent/)
 
 
-### Focusing on one experiment
+### A full overnight run, with all variables centered
 
+Running tSNE on the full dataset takes many hours, so I committed to centering 4 of the categorical variables in the dataset. : ['experiment', 'site', 'plate', 'disease_condition']
 
+Most relevantly, it became clear that centering on "disease condition" is likely required, because of how I assume the plates were prepared. Cells were most likely infected in batch, and then spread to each well. This batch may or may not have been prepared independently of each plate. 
 
-![](results/exp1-big/tsne-disease_condition.png)
+Centering the embedding vectors results in multiple homeostatic clusters featured prominently in the center of the manifold. I find this encouraging, as this suggests that the cells can take on a number of normal states. Also encouraging is that the Mock and UV-inactivated preparations produce the same 3 overlapping clusters.
+
+|              |   |
+:-------------------------:|:-------------------------:
+![](results/normalization-overnight/tsne-disease_condition.png)  |  ![](results/normalization-overnight/tsne-experiment.png)
+![](results/normalization-overnight/tsne-treatment_conc.png)  |  ![](results/normalization-overnight/tsne-plate.png)
+
 
 
 

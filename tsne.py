@@ -21,7 +21,7 @@ print(embeddings)
 # Try normalizing the embeddings data between experiments
 
 normalize = ['experiment', 'site', 'plate', 'disease_condition']
-normalize = False
+#normalize = False
 
 if normalize:
 
@@ -54,7 +54,7 @@ if normalize:
 
 
 # process a small fraction ...
-embeddings = embeddings.sample(frac=0.05)
+#embeddings = embeddings.sample(frac=0.05)
 
 
 X = embeddings.values
