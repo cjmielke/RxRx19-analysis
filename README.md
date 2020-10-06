@@ -120,7 +120,7 @@ I want to find a clever model that incorporates the SMILES strings alongside the
 
 install cudatsne for faster tSNE computations on the GPU
 
-this took way too much time ..... using ubuntu 20 might be easier ....
+Failed to get this working, need a better GPU! ....
 
 	* compile and install cmake : https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line
 	* install cuda-10-2
