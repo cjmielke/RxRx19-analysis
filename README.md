@@ -106,7 +106,7 @@ Once trained however, drugs could be ranked by finding embedding vectors that pr
 
 Splitting a well into 4 sites is a clever way of creating replicates, but this approach can be generalized to smaller and smaller divisions of each well. Taking this to the extreme, one could segment the images into individual cells, and train a model to produce embedding vectors for each! This strategy might better pick up morphological changes that only impact small numbers of cells in the well.
 
-I suspect the best way to train such a model would be with a triplet loss function! Borrowed from facial recognition, this technique could produce vectors that describe the "identity" of cells in a specific treatment state, but invariant to positions and orientation. When triplet loss is applied to face recognition, identity vectors are produced that uniquely identify a face regardless of the specific scene that face is found it.
+I suspect the best way to train such a model would be with a triplet loss function! Borrowed from facial recognition, this technique could produce vectors that describe the "identity" of cells in a specific treatment state, but invariant to positions and orientation. When triplet loss is applied to face recognition, identity vectors are produced that uniquely identify a face regardless of the specific scene that face is found in.
 
 ### Fun ideas
 
