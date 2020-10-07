@@ -1,9 +1,8 @@
 import argparse
-embeddingsFile = '../data/RxRx19/RxRx19a/embeddings.csv'
 
 
 parser = argparse.ArgumentParser(description='convert and summarize the dataset')
-parser.add_argument('-convert', type=str, help='parse embeddings file and store as hdf5 for faster processing')
+parser.add_argument('-convert', type=str, help='Path to embeddings.csv file. Script will parse it and convert to hdf5 for faster loading later')
 parser.add_argument('-summarize', action='store_true', help='print summary statistics of metadata')
 
 
@@ -14,8 +13,7 @@ import pandas
 
 
 # 305520 rows
-metadata = '../data/RxRx19/RxRx19a/metadata-big.csv'
-metadata = pandas.read_csv(metadata, index_col='site_id')
+metadata = pandas.read_csv('metadata.csv', index_col='site_id')
 
 print(metadata.treatment.value_counts())
 print(metadata.disease_condition.value_counts())

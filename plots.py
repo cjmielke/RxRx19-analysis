@@ -1,3 +1,5 @@
+import argparse
+
 import matplotlib.pyplot as plt
 import pandas
 from matplotlib import colors
@@ -5,12 +7,8 @@ import matplotlib.cm as cmx
 
 import tables
 
-df = pandas.read_hdf('DF.hdf','df')
+df = pandas.read_hdf('tSNE.hdf','df')
 
-print(df.columns)
-print(df.treatment_conc.value_counts())
-
-print()
 
 def scatter(df, colname, title=None):
     '''
@@ -23,16 +21,13 @@ def scatter(df, colname, title=None):
 
     numPoints = len(df)
     if numPoints>100000: pointSize = 0.005
-    else: pointSize = 0.1
+    else: pointSize = 1.0
 
     uniq = sorted(list(set(df[colname].dropna())))
 
     if len(uniq) > 50:
-        print('skipping ', colname)
         return
 
-    print('\n\n')
-    print(df[colname].value_counts())
 
     # Set the color map to match the number of species
 
@@ -56,16 +51,22 @@ def scatter(df, colname, title=None):
 
 
 
-#scatter(df, 'treatment_conc')
-#scatter(df, 'cell_type')
-#scatter(df, 'experiment')
+# Make plots of the tSNE embeddings, colorizing for each of the categorical variables
 
 plotcols = [c for c in df.columns if c not in ['x', 'y', 'SMILES']]
-print(plotcols)
-
-#for col in plotcols: scatter(df, col)
+for col in plotcols: scatter(df, col)
 
 
+
+
+###################################
+##########  FIND SOME DRUG HITS!
+
+
+
+parser = argparse.ArgumentParser(description='Plot tSNE embeddings and search for drug hits')
+parser.add_argument('-radius', type=float, default=0.05, help='Set the search radius for drug-treatment points neighboring the homeostatic cells.')
+args = parser.parse_args()
 
 
 # crazy idea! Now that I have these embeddings, can we find neighboring points of the healthy cells?
@@ -78,29 +79,23 @@ drugPoints = zip(drugs.x.values, drugs.y.values)
 
 drugPoints = drugs[['x','y']].values
 
-print(drugPoints.shape)
 
 tree = spatial.KDTree(drugPoints)
 
 normalCells = df[df.disease_condition != 'Active SARS-CoV-2']
 normalPoints = normalCells[['x','y']].values
 
-hits = tree.query_ball_point(normalPoints, 0.1)
+hits = tree.query_ball_point(normalPoints, args.radius)
 
-print(hits)
 
 allHits = set()
 for row in hits:
     for index in row: allHits.add(index)
 
 
-print('----------hits------------')
-print(len(allHits))
-print('----------hits------------')
 
 hits = df.iloc[sorted(list(allHits))]
 
-print(hits)
 
 #df['hit'] = df[df.iloc.isin(allHits)]
 
@@ -114,6 +109,13 @@ scatter(df, 'disease_condition', 'drughit')
 
 
 hits.to_csv('hits.tsv', sep='\t')
+
+
+print('\n\n\n=========== Drug Hits ===========')
+print('Total found : ', len(allHits))
+
+print('\n\n\n=========   Most common drugs found in search radius    ==============')
+print(hits.treatment.value_counts())
 
 
 #[4, 8, 9, 12]

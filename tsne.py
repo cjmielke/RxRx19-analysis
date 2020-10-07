@@ -3,19 +3,18 @@ import argparse
 import pandas
 
 parser = argparse.ArgumentParser(description='compute tSNE embeddings')
-parser.add_argument('-cuda', action='store_true', help='Use CUDA accelerated tSNE')
+parser.add_argument('-cuda', action='store_true', help='Use CUDA accelerated tSNE. (never got this working)')
+parser.add_argument('-fraction', type=float, default=0.05, help='The fraction of the dataset to perform tSNE clustering on. Defaults to 5%. The full dataset takes many hours to cluster.')
 args = parser.parse_args()
 
 
-metadata = '../data/RxRx19/RxRx19a/metadata-big.csv'
-metadata = pandas.read_csv(metadata, index_col='site_id')
+metadata = pandas.read_csv('metadata.csv', index_col='site_id')
 
 print('Loading hdf5')
 embeddings = pandas.read_hdf('embeddings.hdf','df')
-#embeddings = pandas.read_parquet('embeddings.pq.gz')
 print('Loaded')
 
-print(embeddings)
+
 
 
 # Try normalizing the embeddings data between experiments
@@ -43,18 +42,14 @@ if normalize:
 		# now the embeddings dataframe should be normalized to each experiment
 
 
-
-# Todo - turn this routine into a function that can be applied to any column
-
-
 # try focusing just on experiment 1, effectively cutting the experiment in half
 #exp1 = metadata[metadata.experiment=='HRCE-1']
 #embeddings = embeddings[embeddings.index.isin(set(exp1.index))]
 
 
 
-# process a small fraction ...
-#embeddings = embeddings.sample(frac=0.05)
+# shuffle the dataset, and select a fraction of it for tSNE clustering.
+embeddings = embeddings.sample(frac=args.fraction)
 
 
 X = embeddings.values
@@ -80,6 +75,8 @@ DF['y'] = X_embedded[:,1]
 
 DF = DF.join(metadata)
 
+# some of the embeddings couldn't be joined to an associated entry in the metadata file! Had to remove those ...
+
 DFnan = DF[DF.disease_condition.isna()]
 DF = DF[~DF.disease_condition.isna()]
 
@@ -87,16 +84,6 @@ print(len(DF), 'joined')
 print(len(DFnan), 'nans')
 
 
-DF.to_hdf('DF.hdf', 'df')
-
-
-
-'''
-colors = {'Active SARS-CoV-2':'red', 'UV Inactivated SARS-CoV-2':'blue', 'Mock':'purple'}
-ax = DF.plot.scatter('x','y', c=DF['disease_condition'].apply(lambda x: colors.get(x, 'green')), s=0.2)
-
-fig = ax.get_figure()
-fig.savefig('tsne-condition.png', dpi=300)
-'''
+DF.to_hdf('tSNE.hdf', 'df')
 
 

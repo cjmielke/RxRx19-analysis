@@ -1,5 +1,9 @@
 # RxRx19-analysis
 
+
+# Intro to the problem
+
+
 This is a brief exploratory analysis of the [RxRx19 dataset released by Recursion Pharma.](https://www.rxrx.ai/rxrx19a) I've been meaning to dig into this data for months, and now I have an excuse!
 
 In summary, Recursion has treated cells with drugs, and then infected them with COVID19. Afterwards, high-resolution microscopic imagery is performed on multiple flourescent channels that target distinct cellular structures. Following this, a deep learning model condenses this large image dataset into embedded vectors of 1024 dimensions that describe each image.
@@ -161,7 +165,50 @@ I want to find a clever model that incorporates the SMILES strings alongside the
 
 
 
-# Install notes
+
+# Install & Usage notes
+
+create virtualenv and install packages
+
+
+	python3 -m venv venv
+	source venv/bin/activate
+	pip3 install -r requirements.txt
+
+After this, place symlinks to the large embeddings.csv and metadata.csv files in your local work directory
+
+	ln -s /path/to/embeddings.csv ./ 
+	ln -s /path/to/metadata.csv ./ 
+
+
+Run loadData.py to parse the large embeddings.csv file and create an "embeddings.hdf" file. This loads significantly faster for the next step.
+
+
+	python3 loadData.py -convert embeddings.csv
+
+Next, to run tSNE, call the following utility. Note that the -fraction option is used to limit the amount of data the computations are performed on. (for testing) By default, its 5%, which takes ~5 minutes. The full dataset takes many hours to compute.
+
+
+	python3 tsne.py -fraction 0.05
+
+
+This will produce a tSNE.hdf file. This is a binary pandas dataframe containing the tSNE embedding coordinates, along with the joined metadata.
+
+The next script will load this file and plot this embedding space, and then perform a nearest-neighbor search for drug-treatment conditions that fall within a specific radius of cells in the non-infected state. 
+
+	python3 plots.py -radius 0.05
+
+
+This will produce several PNGs in the current working directory, along with "hits.tsv", containing the embeddings that matched the search criteria.
+
+Note that this file will only contain ~50 drug hits if only 5% of the dataset was clustered with tSNE. To reproduce the list of drug candidates above, an overnight clustering is needed. The units of this radius are the same as the embedding space, and need to be tweaked. 0.05 produced a very "clustered" neighborhood for my overnight run, but for smaller dataset sizes, this nearest neighbor search strategy doesn't perform well. Im considering better algorithms to find drug candidates.
+
+I think a better approach is to fit a gaussian mixture model to the homeostatic clusters in this embedding space, and consider drug hits that fall within a threshold radius. 
+
+
+
+
+**ignore the following - work in progress**
 
 install cudatsne for faster tSNE computations on the GPU
 
