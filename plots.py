@@ -88,6 +88,13 @@ normalPoints = normalCells[['x','y']].values
 hits = tree.query_ball_point(normalPoints, args.radius)
 
 
+# instead, what about just querying for points contained within the dominant clusters?
+normalPoints = tables.numpy.array([[-6,4], [-10, -7], [4, 5]])
+
+hits = tree.query_ball_point(normalPoints, 2)
+
+
+
 allHits = set()
 for row in hits:
     for index in row: allHits.add(index)
@@ -115,7 +122,7 @@ print('\n\n\n=========== Drug Hits ===========')
 print('Total found : ', len(allHits))
 
 print('\n\n\n=========   Most common drugs found in search radius    ==============')
-print(hits.treatment.value_counts())
+print(hits.treatment.value_counts().head(30))
 
 
 #[4, 8, 9, 12]

@@ -2,6 +2,8 @@ import argparse
 
 import pandas
 
+from norm import normalizeColumns
+
 parser = argparse.ArgumentParser(description='compute tSNE embeddings')
 parser.add_argument('-cuda', action='store_true', help='Use CUDA accelerated tSNE. (never got this working)')
 parser.add_argument('-fraction', type=float, default=0.05, help='The fraction of the dataset to perform tSNE clustering on. Defaults to 5%. The full dataset takes many hours to cluster.')
@@ -14,32 +16,13 @@ print('Loading hdf5')
 embeddings = pandas.read_hdf('embeddings.hdf','df')
 print('Loaded')
 
-
-
-
 # Try normalizing the embeddings data between experiments
 
 normalize = ['experiment', 'site', 'plate', 'disease_condition']
 #normalize = False
 
-if normalize:
+if normalize: embeddings = normalizeColumns(metadata, embeddings, columns=normalize)
 
-	for colName in normalize:
-
-		print('Normalizing by ', colName)
-
-		parts = []
-		for colVal in set(metadata[colName]):
-			partition = metadata[metadata[colName]==colVal]
-			embeddingsPartition = embeddings[ embeddings.index.isin(set(partition.index)) ]
-
-			# compute centroid of embeddings vectors, and then subtract each
-			centroid = embeddingsPartition.mean(axis=0)
-			embeddingsPartition -= centroid
-			parts.append(embeddingsPartition)
-
-		embeddings = pandas.concat(parts)
-		# now the embeddings dataframe should be normalized to each experiment
 
 
 # try focusing just on experiment 1, effectively cutting the experiment in half
