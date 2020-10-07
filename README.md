@@ -14,9 +14,7 @@ biological state -> [cellular black box] -> visual appearance -> [just 5 dyes] -
 
 With these embedding vectors, we have a birds-eye view that only partially reveals the cells underlying state, but its still useful! Its also much cheaper than more direct measurements, such as single-cell sequencing to determine gene expression levels. 
 
-For drug repurposing, it is useful to consider the idea that the underlying cell state is perturbed by that drug. Furthermore, insults such as viral infection will also perturb this state.
-
-For drug repurposing, its useful to consider that both disease insults (like covid infection) and drug exposure will perturb the underlying cellular state, and hopefully shift the images enough to show a clear perturbation in the embedding vector. To find drugs for COVID19, what we need to define is some kind of baseline homeostatis of the cells. Later, if we find drugs that return infected cells to that homeostasis, they may be viable candidates.
+For drug repurposing, its useful to consider that both disease insults (like covid infection) and drug exposure will perturb the underlying cellular state, and hopefully shift the images enough to show a clear perturbation in the embedding space. To find drugs for COVID19, what we need to define is some kind of "baseline homeostatis" of the cells. Later, if we find drugs that return infected cells to that homeostasis, they may be viable candidates.
 
 ## Preliminary exploration
 
@@ -42,7 +40,7 @@ There are two cell types, split into 4 distinct experiments
 
 ## Visualization
 
-I've been looking for more opportunities to play with tSNE embedding, and this problem lends itself to this technique. I start with plots on 5% of the full shuffled dataset. The most important, and enthusiastic finding, is that the embedding vectors for the Mock and UV-inactivated cells tend to form significant clusters, suggesting that this homeostasis appears to be relatively stable from the perspective of the microscopy images.
+I've been looking for more opportunities to play with tSNE embedding, and this problem lends itself to this technique. I start with plots on 5% of the full shuffled dataset. The most important, and enthusiastic finding, is that the embedding vectors for the Mock and UV-inactivated cells tend to form significant clusters, suggesting that this homeostasis appears to be relatively stable amongst many microscopy images.
 
 |              |   |
 :-------------------------:|:-------------------------:
@@ -50,7 +48,7 @@ I've been looking for more opportunities to play with tSNE embedding, and this p
 
 The embedding vectors also form distinct clusters that correspond to both cell-type, and the experiment performed. By far most of the data are from the two HRCE experiments, each of which has its own associated cluster that is disjoint from the rest of the embedding space. The tSNE embedding has revealed that there is a systematic bias between experimental replicates.
 
-What could have caused this bias? Many things! Experiments could have been run on different days, leading to differences in microscope aquisition settings, a slightly different concentration of one of the channel dies, or any other factors of prepping the samples. Regardless of the cause, the images from the experiment were ever-so-slightly different, and recursions deep learning model translated these differences into euclidean transformations in the embedding vector space. TSNE just made this shift easier to see.
+What could have caused this bias? Many things! Experiments could have been run on different days, leading to differences in microscope aquisition settings, a slightly different concentration of one of the channel dies, or any other factors of prepping the samples. Regardless of the cause, the images from the experiments were ever-so-slightly different, and recursions deep learning model translated these differences into euclidean transformations in the embedding vector space. TSNE just made this shift easier to see.
 
 This transformation can be easily corrected however! We can just compute centroid vectors for each of the 4 experiments, and then subtract this centroid from each vector in turn. Doing so centers the dataset. These vectors could also be normalized by their respective standard deviations.  Running the tSNE again reveals that the clusters for the same cell type collapse!  
 
@@ -61,29 +59,16 @@ This transformation can be easily corrected however! We can just compute centroi
 
 ### exploring other biases
 
-The following are results from an overnight tSNE run on the **entire** dataset, (but without the previous normalization). With a larger number of points, it is possible to see other categorical variables that are somehow distinguishable by the neural network. The plate number for example shows quite clearly that all Vero samples were collected on just a few plates. More intriguingly, the site imaged within each well shows an obvious "clumpiness", which implies that **the deep learning model is sometimes able to distinguish which of the 4 corners of a well it is imaging.** I'll need to look at the image dataset later to learn why! I wonder if it can spot the walls!
+The following are results from an overnight tSNE run on the **entire** dataset, (but without the previous normalization). With a larger number of points, it is possible to see other categorical variables that are somehow distinguishable by the neural network. The plate number for example shows quite clearly that all Vero samples were collected on just a few plates. More intriguingly, the site imaged within each well shows an obvious "clumpiness", which implies that the deep learning model is sometimes able to distinguish which of the 4 corners of a well it is imaging. I'll need to look at the image dataset later to learn why! I wonder if it can spot the walls!
 
-Importantly, these other confounds are just as easily normalized as the experimental run. For each plate or site, centroids can be subtracted. It could also be argued that the four sites of each well could have their embedding vectors averaged, but such a strategy is probably best assessed in a larger pipeline.
+These other confounds are just as easily normalized as the experimental run. For each plate or site, centroids can be subtracted. It could also be argued that the four sites of each well could have their embedding vectors averaged, but such a strategy is probably best assessed in a larger pipeline.
 
 |              |   |
 :-------------------------:|:-------------------------:
 ![](results/first-10percent/tsne-site.png)  |  ![](results/first-10percent/tsne-plate.png)
 ![](results/first-10percent/tsne-concentration.png)  |  ![](results/first-10percent/)
 
-I mapped concentration too. Indeed a few clusters appear, specifically of higher-concentrations of drugs. I can imagine a few distinct causes of this. Large detoxification activity in the cells perhaps? Or even a direct photometric effect of the drug on the flourescence signals of a specific channel?
-
-
-### Post-correction .... how can we find leads?
-
-Taking a cue from the "connectivity map" project, and other similar drug repurposing efforts based on gene expression perturbations, drugs for a given illness could be found if they perturb a cellular state in a direction opposite that of the illness. In the embedding space, one could imagine finding vectors that are antipodal to the disease perturbations.
-
-With this dataset however, what is missing is data on the cellular states induced by each drug applied to uninfected cells! While sufficient healthy control cells are present to obtain a nice homeostatic baseline, the rest of the data is some mixture of that drugs perturbation and the perturbation induced by the virus. This can confound our efforts.
-
-Its a fair assumption that for most drugs, the lowest concentrations have small effects on the cell. Since there is little "clumping" of the concentrations in the tSNE embedding, I am inclined to believe that the effect of the coronavirus itself already has significant effects on the variance of the embedding vectors. Indeed, the "area" of this tSNE embedding showing infected cells is quite large.
-
-Thus, it seems that a reasonable starting point for finding lead compounds is to look within the "neighborhood of homeostasis" in this unsupervised embedding. This is breaking a few rules! Indeed, euclidean distances are only reliable over short distances in such embeddings! Comparisons should also be performed for straight kNN in an embedding provided by PCA, or the full embedding dimension itself.
-
-
+I mapped concentration too. Indeed a few clusters appear, specifically of higher-concentrations of drugs. I can imagine a few distinct causes of this. Large detoxification activity in the cells perhaps? Or even a direct photometric effect of certain drugs on the flourescence signals of a specific channel?
 
 ### A full overnight run, with all variables centered
 
@@ -91,18 +76,25 @@ Running tSNE on the full dataset takes many hours, so I committed to centering 4
 
 Most relevantly, it became clear that centering on "disease condition" is likely required, because of how I assume the plates were prepared. Cells were most likely infected in batch, and then spread to each well. This batch may or may not have been prepared independently of each plate. 
 
-Centering the embedding vectors results in multiple homeostatic clusters featured prominently in the center of the manifold. I find this encouraging, as this suggests that the cells can take on a number of normal states. Also encouraging is that the Mock and UV-inactivated preparations produce the same 3 overlapping clusters.
+Centering the embedding vectors results in multiple "homeostatic clusters" featured prominently in the center of the manifold. I find this encouraging, as this suggests that the cells can take on a number of normal states. Also encouraging is that the Mock and UV-inactivated preparations produce the same 3 overlapping clusters.
 
 |              |   |
 :-------------------------:|:-------------------------:
 ![](results/normalization-overnight/tsne-disease_condition.png)  |  ![](results/normalization-overnight/tsne-experiment.png)
 ![](results/normalization-overnight/tsne-treatment_conc.png)  |  ![](results/normalization-overnight/tsne-plate.png)
 
-### Finding potential drug hits
 
-TSNE is a clever manifold embedding approach, but we must remember that only local distances are preserved. Exploiting this property however, we can find points in these plots that neighbor the clusters of homeostatic cells. I implemented this search with a KDTree to find all points within a 0.1 radius within this manifold.
+### Post-correction .... how can we find leads?
 
-The result finds drugs clustered around the core, in orange.
+Taking a cue from the "connectivity map" project, and other similar drug repurposing efforts based on gene expression perturbations, drugs for a given illness could be found if they perturb a cellular state in a direction opposite that of the illness. In the embedding space, one could imagine finding vectors that are antipodal to the disease perturbations.
+
+With this dataset however, what is missing is data on the cellular states induced by each drug applied to uninfected cells! While sufficient healthy control cells are present to obtain a nice homeostatic baseline, the rest of the data is some mixture of that drugs perturbation **and** the perturbation induced by the virus. This can confound our efforts.
+
+Thus, it seems that a reasonable starting point for finding lead compounds is to look within the "neighborhood of homeostasis" in this unsupervised embedding. This is breaking a few rules! Indeed, euclidean distances are only reliable over short distances in such embeddings! Comparisons should also be performed for straight kNN in an embedding provided by PCA, or the full embedding dimension itself.
+
+#### Finding potential drug hits
+
+Using a simple nearest-neighbor approach, we can find points in these plots that neighbor the clusters of homeostatic cells. I implemented this search with a KDTree to find all points within a 0.05 radius in this manifold. The result finds drugs clustered around the core, in orange.
 
 ![](results/drughits.png)
 
@@ -140,29 +132,6 @@ To rapidly summarize the top drugs, I merely counted the occurance of each by na
      31 Forodesine
      30 Triclocarban
      30 phenylpiracetam
-
-
-
-
-### Better approaches
-
-One could (ab)use a supervised training method as well. Consider a classifier which maps the 1024-dimensional embedding vector to a sigmoidal output that predicts uninfected/infected. This would need to be carefully regularized so as to not overtrain. 
-
-Once trained however, drugs could be ranked by finding embedding vectors that produce the highest output probabilities of an "uninfected" classification.
-
-
-### Crazy ideas
-
-Splitting a well into 4 sites is a clever way of creating replicates, but this approach can be generalized to smaller and smaller divisions of each well. Taking this to the extreme, one could segment the images into individual cells, and train a model to produce embedding vectors for each! This strategy might better pick up morphological changes that only impact small numbers of cells in the well.
-
-I suspect the best way to train such a model would be with a triplet loss function! Borrowed from facial recognition, this technique could produce vectors that describe the "identity" of cells in a specific treatment state, but invariant to positions and orientation. When triplet loss is applied to face recognition, identity vectors are produced that uniquely identify a face regardless of the specific scene that face is found in.
-
-### Fun ideas
-
-I want to find a clever model that incorporates the SMILES strings alongside the embedding vectors. Will be thinking of this!
-
-
-
 
 
 
@@ -204,6 +173,34 @@ This will produce several PNGs in the current working directory, along with "hit
 Note that this file will only contain ~50 drug hits if only 5% of the dataset was clustered with tSNE. To reproduce the list of drug candidates above, an overnight clustering is needed. The units of this radius are the same as the embedding space, and need to be tweaked. 0.05 produced a very "clustered" neighborhood for my overnight run, but for smaller dataset sizes, this nearest neighbor search strategy doesn't perform well. Im considering better algorithms to find drug candidates.
 
 I think a better approach is to fit a gaussian mixture model to the homeostatic clusters in this embedding space, and consider drug hits that fall within a threshold radius. 
+
+
+
+
+# Todo
+
+### Better approaches
+
+One could (ab)use a supervised training method as well. Consider a classifier which maps the 1024-dimensional embedding vector to a sigmoidal output that predicts uninfected/infected. This would need to be carefully regularized so as to not overtrain. 
+
+Once trained however, drugs could be ranked by finding embedding vectors that produce the highest output probabilities of an "uninfected" classification.
+
+
+### Crazy ideas
+
+Splitting a well into 4 sites is a clever way of creating replicates, but this approach can be generalized to smaller and smaller divisions of each well. Taking this to the extreme, one could segment the images into individual cells, and train a model to produce embedding vectors for each! This strategy might better pick up morphological changes that only impact small numbers of cells in the well.
+
+I suspect the best way to train such a model would be with a triplet loss function! Borrowed from facial recognition, this technique could produce vectors that describe the "identity" of cells in a specific treatment state, but invariant to positions and orientation. When triplet loss is applied to face recognition, identity vectors are produced that uniquely identify a face regardless of the specific scene that face is found in.
+
+### Fun ideas
+
+I want to find a clever model that incorporates the SMILES strings alongside the embedding vectors. Will be thinking of this!
+
+
+
+
+
+
 
 
 
