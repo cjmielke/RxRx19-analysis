@@ -147,12 +147,8 @@ If you run the predictor on the drugs, you get a histogram showing a small fract
 
 ![](results/drughist.png)
 
+Taking the top 10k predictions, and counting by drug name, we get a similar list of hits enriched for antivirals.
 
-Taking the top 10k predictions, and counting by drug name, we get a similar list of hits enriched for antivirals. My favorite is GS-441524, also found in the unsupervised approach above. This is the remdesivir active metabolite.
-
-Also found in both results is **camostat**. This is a protease inhibitor for the TMPRSS2 enzyme required for Sars-CoV-2 entry into cells.
-
-Thymoquinone, is a notable PAINS member, so we can probably ignore it. Lets not talk about the hydroxychloroquine hit :) 
  
     188 GS-441524
     169 Quinine hydrochloride
@@ -202,6 +198,18 @@ Thymoquinone, is a notable PAINS member, so we can probably ignore it. Lets not 
      19 Diiodohydroxyquinoline
 
 
+# Best drug hits
+
+Several compounds show up in the top-lists for both the unsupervised and supervised ML approaches
+
+My favorite is GS-441524. This is the active metabolite of remdesivir.
+
+Also found in both results is **camostat**. This is a protease inhibitor for the TMPRSS2 enzyme required for Sars-CoV-2 entry into cells.
+
+Thymoquinone, is a notable PAINS member, so we can probably ignore it. Lets not talk about the hydroxychloroquine hit :) 
+
+
+[Aloxistatin](https://en.wikipedia.org/wiki/Aloxistatin) has already been demonstrated to [inhibit coronavirus protein and RNA processing](https://www.sciencedirect.com/science/article/pii/S0042682285711233?via%3Dihub)
 
 
 
