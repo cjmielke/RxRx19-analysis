@@ -1,3 +1,5 @@
+from keras import backend as K
+
 import argparse
 from itertools import cycle
 from typing import Optional, Any
@@ -28,7 +30,7 @@ metadata = metadata.sample(frac=1.0)                # shuffle
 metadata = metadata[~metadata.disease_condition.isnull()]
 
 
-#metadata = metadata.head(17)
+#metadata = metadata.head(50000)                 # for testing smaller quantities
 
 
 
@@ -60,7 +62,7 @@ class DataGen():
 		self.df = dataFrame
 		self.batchSize=batchSize
 
-		self.labels = {'Mock':0, 'UV Inactivated SARS-CoV-2':0, 'Active SARS-CoV-2':1}
+		self.labels = {'Active SARS-CoV-2':0, 'Mock':1, 'UV Inactivated SARS-CoV-2':1, }
 
 		# setup stratified subsampling
 		if stratify:
@@ -87,6 +89,7 @@ class DataGen():
 			label = row.disease_condition
 			label = self.labels[label]
 			features = embeddings.loc[index].values           # look up embedding vector for this index
+			features = features.astype(K.floatx())
 		except StopIteration:                                 # for evaluation of the model, we dont loop infinitely
 			features = numpy.zeros(1024)
 			label = -1          # a skip code for later
@@ -144,7 +147,7 @@ def buildModel(args):
 	inp = Input(shape=(1024, ), name='embedding')
 	x=inp
 
-	x = Dense(args.fc1, activation='relu')(x)
+	x = Dense(args.fc1, activation='tanh')(x)
 	x = Dropout(args.dropout)(x)
 
 	condition = Dense(1, activation='sigmoid', name='prediction')(x)
@@ -180,7 +183,7 @@ def train(args):
 
 	# not using the "true" definition of a training epoch can be more convenient for realtime feedback of the model
 	steps=100
-	#vsteps=50
+	vsteps=100
 
 	callbacks=[]
 
@@ -192,17 +195,34 @@ def train(args):
 		model.save('model.h5')
 
 def finddrugs(args):
+	'''
+	Basic idea :
+
+	we trained a model to predict drug treatment (0) or Mock/UV inactivated (1) samples
+
+	Now we loop over the drugs to find which ones LOOK LIKE Mock/UV inactivated samples .... ;)
+
+	'''
+
 
 	model: keras.models.Model = load_model('model.h5')
 
 	print(model.summary())
 
 	#metadata = metadata.head()
-	batchSize=4096
+	batchSize=4096*4
 	gen = DataGen(metadata, loop=False, shuffle=False, stratify=False, batchSize=batchSize)
 	steps = 1 + len(metadata)//batchSize
 
 	predictions = model.predict_generator(gen, steps=steps)
+
+	'''
+	print('Generator produced this predictions array :', predictions.shape, predictions.dtype)
+	#predictions = predictions.astype(float64)
+	predictions.tofile('predictions.py')
+	predictions = numpy.fromfile('predictions.py', dtype=K.floatx())
+	print('Loaded this predictions array :', predictions.shape)
+	'''
 
 	# remove the "batch overhang"
 	print(len(metadata), predictions.shape)
@@ -213,6 +233,28 @@ def finddrugs(args):
 	drugs.sort_values('prediction', ascending=False, inplace=True)
 	drugs.to_csv('drugPredictions.tsv', sep='\t')
 
+	'''
+	print('predictions counts : ')
+	print(metadata.prediction.value_counts())
+	weird = metadata[metadata.prediction == 0.6428735256195068]
+	print(weird)
+	'''
+
+	import matplotlib.pyplot as plt
+	# An "interface" to matplotlib.axes.Axes.hist() method
+	n, bins, patches = plt.hist(x=predictions, bins='auto', color='#0504aa', alpha=0.7, rwidth=0.85)
+	plt.grid(axis='y', alpha=0.75)
+	plt.xlabel('Value')
+	plt.ylabel('Frequency')
+	plt.title('Output probabilities that drug-treated state is mistaken for Mock/Inactive')
+	plt.text(23, 45, r'$\mu=15, b=3$')
+	maxfreq = n.max()
+	# Set a clean upper y-axis limit.
+	plt.ylim(ymax=numpy.ceil(maxfreq / 10) * 10 if maxfreq % 10 else maxfreq + 10)
+
+
+	plt.savefig('drughist.png', dpi=300)
+
 
 
 if __name__ == '__main__':
@@ -220,7 +262,7 @@ if __name__ == '__main__':
 	#parser.add_argument('-cuda', action='store_true', help='Use CUDA accelerated tSNE. (never got this working)')
 	parser.add_argument('-batchSize', type=int, default=16, help='')
 	parser.add_argument('-dropout', type=float, default=0.1, help='')
-	parser.add_argument('-fc1', type=int, default=4, help='')
+	parser.add_argument('-fc1', type=int, default=8, help='')
 	parser.add_argument('-train', action='store_true', help='')
 	parser.add_argument('-finddrugs', action='store_true', help='')
 	args = parser.parse_args()

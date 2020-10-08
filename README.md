@@ -134,6 +134,60 @@ To rapidly summarize the top drugs, I merely counted the occurance of each by na
      30 phenylpiracetam
 
 
+# Trying a supervised approach
+
+We can (ab)use a supervised machine learning approach. The basic idea here is to train a very simple neural network that classifies embedding vectors into two binary classes : 
+
+	0 : Infected
+	1 : Mock, or UV Inactivated
+
+Whats important is to train the network to not memorize the training set. If generalization is achievable, then one can merely evaluate the embedding vectors associated with drug treatment to see which drugs result in the wrong classification. (label 1)
+
+If you run the predictor on the drugs, you get a histogram showing a small fraction that are misclassified :
+
+![](results/drughist.png)
+
+
+Taking the top 10k predictions, and counting by drug name, we get a similar list of hits enriched for antivirals. My favorite is **camostat**, found in this list and the results from the unsupervised approach above. This is a protease inhibitor for the TMPRSS enzyme required for Sars-CoV-2 entry into cells.
+
+Lets not talk about the hydroxychloroquine hit :) 
+ 
+    196 Thymoquinone
+    184 Ribavirin
+    177 Dimethyl fumarate
+    175 Quinine hydrochloride
+    171 Cobicistat
+    168 Imiquimod
+    167 1-deoxygalactonojirimycin
+    165 Camostat
+    164 Lopinavir
+    164 Aloxistatin
+    163 methylprednisolone-sodium-succinate
+    163 Favipiravir
+    161 Darunavir
+    160 oseltamivir-carboxylate
+    158 quinine-ethyl-carbonate
+    155 Tenofovir Disoproxil Fumarate
+    154 Ritonavir
+    153 Penciclovir
+    152 Polydatin
+    148 Haloperidol
+    146 Indomethacin
+    145 Pacritinib
+    145 CAL-101
+    144 Quinine
+    144 Indinavir
+    142 Arbidol
+    141 solithromycin
+    129 Nicotianamine
+    127 Remdesivir (GS-5734)
+    122 Hydroxychloroquine Sulfate
+    103 Chloroquine
+
+
+
+
+
 
 # Install & Usage notes
 
