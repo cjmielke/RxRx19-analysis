@@ -152,38 +152,52 @@ Taking the top 10k predictions, and counting by drug name, we get a similar list
 
 The top hit, Thymoquinone, is a notable PAINS member, so we can probably ignore it. Lets not talk about the hydroxychloroquine hit :) 
  
-    196 Thymoquinone
-    184 Ribavirin
-    177 Dimethyl fumarate
-    175 Quinine hydrochloride
-    171 Cobicistat
-    168 Imiquimod
-    167 1-deoxygalactonojirimycin
-    165 Camostat
-    164 Lopinavir
-    164 Aloxistatin
-    163 methylprednisolone-sodium-succinate
-    163 Favipiravir
-    161 Darunavir
-    160 oseltamivir-carboxylate
-    158 quinine-ethyl-carbonate
-    155 Tenofovir Disoproxil Fumarate
-    154 Ritonavir
-    153 Penciclovir
-    152 Polydatin
-    148 Haloperidol
-    146 Indomethacin
-    145 Pacritinib
-    145 CAL-101
-    144 Quinine
-    144 Indinavir
-    142 Arbidol
-    141 solithromycin
-    129 Nicotianamine
-    127 Remdesivir (GS-5734)
-    122 Hydroxychloroquine Sulfate
-    103 Chloroquine
-
+    188 GS-441524
+    169 Quinine hydrochloride
+    164 Thymoquinone
+    156 CAL-101
+    155 methylprednisolone-sodium-succinate
+    140 Chloroquine
+    139 Pacritinib
+    139 Hydroxychloroquine Sulfate
+    133 Aloxistatin
+    132 Ribavirin
+    126 Tenofovir Disoproxil Fumarate
+    125 1-deoxygalactonojirimycin
+    124 solithromycin
+    124 Remdesivir (GS-5734)
+    124 Dimethyl fumarate
+    118 Polydatin
+    118 Penciclovir
+    116 quinine-ethyl-carbonate
+    114 Lopinavir
+    114 Haloperidol
+    112 Quinine
+    112 Cobicistat
+    110 Arbidol
+    109 Imiquimod
+    107 Favipiravir
+    107 Darunavir
+    103 oseltamivir-carboxylate
+    103 Nicotianamine
+    103 Indomethacin
+     99 Camostat
+     96 Indinavir
+     95 Ritonavir
+     51 Dasatinib
+     35 proscillaridin-a
+     30 mizolastine
+     27 bupranolol
+     26 digitoxin
+     25 nifenalol
+     22 piperaquine-phosphate
+     21 Itraconazole
+     20 salinomycin
+     20 (+)-Ephedrine (hydrochloride)
+     20 Ebastine
+     19 Opicapone
+     19 FG-4592
+     19 Diiodohydroxyquinoline
 
 
 

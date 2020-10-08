@@ -172,18 +172,22 @@ def buildModel(args):
 def train(args):
 	model = buildModel(args)
 
-	trainDF, testDF = train_test_split(metadata, test_size=0.2)
+	if args.validation:
+		trainDF, testDF = train_test_split(metadata, test_size=0.2)
+		vGen = DataGen(testDF, batchSize=512)       # doesnt effect training, but does effect performance!
+		vsteps = int(len(testDF) / 512)
+		vsteps = 100
+	else:
+		trainDF = metadata
+		vGen = None
+		vsteps = None
 
 	# create dataset generators for keras
 	tGen = DataGen(trainDF, batchSize=args.batchSize)
 	steps = int(len(trainDF)/args.batchSize)
 
-	vGen = DataGen(testDF, batchSize=512)       # doesnt effect training, but does effect performance!
-	vsteps = int(len(testDF) / 512)
-
 	# not using the "true" definition of a training epoch can be more convenient for realtime feedback of the model
 	steps=100
-	vsteps=100
 
 	callbacks=[]
 
@@ -265,6 +269,7 @@ if __name__ == '__main__':
 	parser.add_argument('-fc1', type=int, default=8, help='')
 	parser.add_argument('-train', action='store_true', help='')
 	parser.add_argument('-finddrugs', action='store_true', help='')
+	parser.add_argument('-validation', action='store_true', help='Use a validation set during training')
 	args = parser.parse_args()
 
 	if args.train: train(args)
