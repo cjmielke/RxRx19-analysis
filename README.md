@@ -204,12 +204,13 @@ Several compounds show up in the top-lists for both the unsupervised and supervi
 
 My favorite is GS-441524. This is the active metabolite of remdesivir.
 
-Also found in both results is **camostat**. This is a protease inhibitor for the TMPRSS2 enzyme required for Sars-CoV-2 entry into cells.
+Also found in both results is [camostat](https://en.wikipedia.org/wiki/Camostat). This is a protease inhibitor for the TMPRSS2 enzyme required for Sars-CoV-2 entry into cells. It has [demonstrated efficacy](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3393535/) against the original SARS virus.
+
+[Aloxistatin](https://en.wikipedia.org/wiki/Aloxistatin) has already been demonstrated to [inhibit coronavirus protein and RNA processing](https://www.sciencedirect.com/science/article/pii/S0042682285711233?via%3Dihub)
 
 Thymoquinone, is a notable PAINS member, so we can probably ignore it. Lets not talk about the hydroxychloroquine hit :) 
 
 
-[Aloxistatin](https://en.wikipedia.org/wiki/Aloxistatin) has already been demonstrated to [inhibit coronavirus protein and RNA processing](https://www.sciencedirect.com/science/article/pii/S0042682285711233?via%3Dihub)
 
 
 
