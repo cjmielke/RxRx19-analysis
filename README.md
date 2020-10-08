@@ -148,9 +148,9 @@ If you run the predictor on the drugs, you get a histogram showing a small fract
 ![](results/drughist.png)
 
 
-Taking the top 10k predictions, and counting by drug name, we get a similar list of hits enriched for antivirals. My favorite is **camostat**, found in this list and the results from the unsupervised approach above. This is a protease inhibitor for the TMPRSS enzyme required for Sars-CoV-2 entry into cells.
+Taking the top 10k predictions, and counting by drug name, we get a similar list of hits enriched for antivirals. My favorite is **camostat**, found in this list and the results from the unsupervised approach above. This is a protease inhibitor for the TMPRSS2 enzyme required for Sars-CoV-2 entry into cells.
 
-Lets not talk about the hydroxychloroquine hit :) 
+The top hit, Thymoquinone, is a notable PAINS member, so we can probably ignore it. Lets not talk about the hydroxychloroquine hit :) 
  
     196 Thymoquinone
     184 Ribavirin
