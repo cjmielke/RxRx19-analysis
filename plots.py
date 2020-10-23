@@ -7,10 +7,9 @@ import matplotlib.cm as cmx
 
 import tables
 
-df = pandas.read_hdf('tSNE.hdf','df')
 
 
-def scatter(df, colname, title=None):
+def scatter(df, colname, title=None, pointSize=None):
     '''
     color scatterplot with colors determined from categorical values
     based on https://stackoverflow.com/questions/28033046/matplotlib-scatter-color-by-categorical-factors
@@ -20,8 +19,11 @@ def scatter(df, colname, title=None):
     title = title or colname
 
     numPoints = len(df)
-    if numPoints>100000: pointSize = 0.005
-    else: pointSize = 1.0
+
+    if not pointSize:
+        if numPoints<5000: pointSize = 10.0
+        elif numPoints>100000: pointSize = 0.005
+        else: pointSize = 1.0
 
     uniq = sorted(list(set(df[colname].dropna())))
 
@@ -50,82 +52,87 @@ def scatter(df, colname, title=None):
     plt.clf()
 
 
+# code for producing tSNE plots on image embeddings
+# TODO - encapsulate this, or move it to those image-embedding specfic parts of the pipeline
+if __name__ == '__main__':
 
-# Make plots of the tSNE embeddings, colorizing for each of the categorical variables
+    df = pandas.read_hdf('tSNE.hdf', 'df')
 
-plotcols = [c for c in df.columns if c not in ['x', 'y', 'SMILES']]
-for col in plotcols: scatter(df, col)
+    # Make plots of the tSNE embeddings, colorizing for each of the categorical variables
 
-
-
-
-###################################
-##########  FIND SOME DRUG HITS!
-
-
-
-parser = argparse.ArgumentParser(description='Plot tSNE embeddings and search for drug hits')
-parser.add_argument('-radius', type=float, default=0.05, help='Set the search radius for drug-treatment points neighboring the homeostatic cells.')
-args = parser.parse_args()
-
-
-# crazy idea! Now that I have these embeddings, can we find neighboring points of the healthy cells?
-
-from scipy import spatial
-
-# construct a KD tree on all of the points corresponding to drugs
-drugs = df[df.disease_condition=='Active SARS-CoV-2']
-drugPoints = zip(drugs.x.values, drugs.y.values)
-
-drugPoints = drugs[['x','y']].values
-
-
-tree = spatial.KDTree(drugPoints)
-
-normalCells = df[df.disease_condition != 'Active SARS-CoV-2']
-normalPoints = normalCells[['x','y']].values
-
-hits = tree.query_ball_point(normalPoints, args.radius)
-
-
-# instead, what about just querying for points contained within the dominant clusters?
-normalPoints = tables.numpy.array([[-6,4], [-10, -7], [4, 5]])
-
-hits = tree.query_ball_point(normalPoints, 2)
+    plotcols = [c for c in df.columns if c not in ['x', 'y', 'SMILES']]
+    for col in plotcols: scatter(df, col)
 
 
 
-allHits = set()
-for row in hits:
-    for index in row: allHits.add(index)
+
+    ###################################
+    ##########  FIND SOME DRUG HITS!
 
 
 
-hits = df.iloc[sorted(list(allHits))]
+    parser = argparse.ArgumentParser(description='Plot tSNE embeddings and search for drug hits')
+    parser.add_argument('-radius', type=float, default=0.05, help='Set the search radius for drug-treatment points neighboring the homeostatic cells.')
+    args = parser.parse_args()
 
 
-#df['hit'] = df[df.iloc.isin(allHits)]
+    # crazy idea! Now that I have these embeddings, can we find neighboring points of the healthy cells?
 
-df['hit']=0
-df.loc[df.index.isin(hits.index), 'hit']=1
-df.loc[df.index.isin(hits.index), 'disease_condition']='ZHit'
+    from scipy import spatial
 
+    # construct a KD tree on all of the points corresponding to drugs
+    drugs = df[df.disease_condition=='Active SARS-CoV-2']
+    drugPoints = zip(drugs.x.values, drugs.y.values)
 
-scatter(df, 'hit')
-scatter(df, 'disease_condition', 'drughit')
-
-
-hits.to_csv('hits.tsv', sep='\t')
+    drugPoints = drugs[['x','y']].values
 
 
-print('\n\n\n=========== Drug Hits ===========')
-print('Total found : ', len(allHits))
+    tree = spatial.KDTree(drugPoints)
 
-print('\n\n\n=========   Most common drugs found in search radius    ==============')
-print(hits.treatment.value_counts().head(30))
+    normalCells = df[df.disease_condition != 'Active SARS-CoV-2']
+    normalPoints = normalCells[['x','y']].values
+
+    hits = tree.query_ball_point(normalPoints, args.radius)
 
 
-#[4, 8, 9, 12]
+    # instead, what about just querying for points contained within the dominant clusters?
+    normalPoints = tables.numpy.array([[-6,4], [-10, -7], [4, 5]])
+
+    hits = tree.query_ball_point(normalPoints, 2)
+
+
+
+    allHits = set()
+    for row in hits:
+        for index in row: allHits.add(index)
+
+
+
+    hits = df.iloc[sorted(list(allHits))]
+
+
+    #df['hit'] = df[df.iloc.isin(allHits)]
+
+    df['hit']=0
+    df.loc[df.index.isin(hits.index), 'hit']=1
+    df.loc[df.index.isin(hits.index), 'disease_condition']='ZHit'
+
+
+    scatter(df, 'hit')
+    scatter(df, 'disease_condition', 'drughit')
+
+
+    hits.to_csv('hits.tsv', sep='\t')
+
+
+    print('\n\n\n=========== Drug Hits ===========')
+    print('Total found : ', len(allHits))
+
+    print('\n\n\n=========   Most common drugs found in search radius    ==============')
+    print(hits.treatment.value_counts().head(30))
+
+
+    #[4, 8, 9, 12]
 
 
 
